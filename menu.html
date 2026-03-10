@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Shimla Bakery</title>
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary-color: #d35400;
+            --secondary-color: #2c3e50;
+            --bg-color: #fdfbf7;
+            --accent-color: #e67e22;
+            --text-color: #555;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-heading);
+            color: var(--secondary-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+        }
+
+        /* ✅ FIXED: Desktop Navigation Class */
+        .nav-links-desktop {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links-desktop a {
+            font-weight: 500;
+            transition: color 0.3s;
+            color: var(--secondary-color);
+        }
+
+        .nav-links-desktop a:hover {
+            color: var(--primary-color);
+        }
+
+        .btn-order {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: transform 0.3s;
+        }
+
+        .btn-order:hover {
+            transform: translateY(-2px);
+            background-color: var(--accent-color);
+        }
+
+        /* --- MOBILE NAVIGATION (100% WIDTH) --- */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 0.5rem;
+            z-index: 1002;
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100%; /* ✅ CHANGED TO 100% */
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: left 0.3s ease;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .mobile-nav-overlay.active {
+            left: 0;
+        }
+
+        .mobile-nav-overlay .nav-links {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-overlay .nav-links a {
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            color: var(--secondary-color); /* ✅ DARK TEXT */
+            font-weight: 500;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .mobile-nav-overlay .nav-links a:hover {
+            background-color: rgba(211, 84, 0, 0.1);
+            color: var(--primary-color);
+        }
+
+        .mobile-nav-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+
+        .mobile-nav-overlay .btn-logout {
+            background-color: #e74c3c;
+            margin-top: 2rem;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .mobile-nav-overlay .btn-logout:hover {
+            background-color: #c0392b;
+        }
+
+        /* --- MENU HEADER --- */
+        .menu-header {
+            text-align: center;
+            padding: 4rem 5% 2rem;
+        }
+
+        .menu-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .menu-header p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- CATEGORY FILTER --- */
+        .category-filter {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem 5%;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid var(--secondary-color);
+            background: transparent;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        /* --- MENU GRID --- */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 5%;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, opacity 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .product-card.hidden {
+            display: none;
+        }
+
+        /* ✅ FIXED PRODUCT IMAGE CSS */
+        .product-img {
+            height: 250px;
+            width: 100%;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+            text-align: left;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-info h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-desc {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 1rem;
+        }
+
+        .price {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .btn-add {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--secondary-color);
+            background: transparent;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-add:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        /* --- CATEGORY HEADERS --- */
+        .category-header {
+            grid-column: 1 / -1;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .category-header h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 3rem 5%;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .menu-header h1 {
+                font-size: 2rem;
+            }
+
+            /* ✅ FIXED: Hide desktop nav only */
+            .nav-links-desktop {
+                display: none;
+            }
+
+            /* ✅ CRITICAL FIX: Show hamburger menu on mobile */
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .category-filter {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .product-img {
+                height: 200px;
+            }
+
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <!-- Importing Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        
+        <div class="logo">Shimla Bakery.</div>
+        
+        <!-- ✅ FIXED: Desktop Navigation Class -->
+        <div class="nav-links-desktop" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="login.html" id="login-link">Login</a>
+            <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
+            <a href="#" id="logout-link" class="btn-logout" style="display: none;" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+      <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+        <button class="mobile-nav-close" onclick="toggleMobileMenu()">✕</button>
+        <div class="nav-links" style="flex-direction: column;">
+            <a href="index.html" onclick="toggleMobileMenu()">Home</a>
+            <a href="menu.html" onclick="toggleMobileMenu()">Menu</a>
+            <a href="cart.html" onclick="toggleMobileMenu()">Cart</a>
+            <a href="login.html" id="mobile-login-link" onclick="toggleMobileMenu()">Login</a>
+            <a href="dashboard.html" id="mobile-dashboard-link" style="display: none;" onclick="toggleMobileMenu()">Dashboard</a>
+            <a href="#" id="mobile-logout-link" class="btn-logout" style="display: none;" onclick="logout(); toggleMobileMenu()">Logout</a>
+        </div>
+    </div>
+
+    <!-- Menu Header -->
+    <section class="menu-header">
+        <h1>Our Menu</h1>
+        <p>Discover our wide selection of freshly baked breads, pastries, and cakes. Made with love and the finest
+            ingredients.</p>
+    </section>
+
+    <!-- Category Filter -->
+    <div class="category-filter">
+        <button class="filter-btn active" onclick="filterMenu('all')">All</button>
+        <button class="filter-btn" onclick="filterMenu('bread')">Breads</button>
+        <button class="filter-btn" onclick="filterMenu('pastry')">Pastries</button>
+        <button class="filter-btn" onclick="filterMenu('cake')">Cakes</button>
+        <button class="filter-btn" onclick="filterMenu('beverage')">Beverages</button>
+        <button class="filter-btn" onclick="filterMenu('sandwich')">Sandwiches</button>
+    </div>
+
+    <!-- Menu Grid -->
+    <section class="menu-grid">
+
+        <!-- BREADS SECTION -->
+        <div class="category-header">
+            <h2>Fresh Breads</h2>
+        </div>
+
+        <!-- Product 1: ARTISAN SOURDOUGH -->
+        <div class="product-card" data-category="bread">
+            <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Artisan Sourdough" class="product-img">
+            <div class="product-info">
+                <h3>Artisan Sourdough</h3>
+                <p class="product-desc">Traditional sourdough with crispy crust and soft interior</p>
+                <span class="price">$6.00</span>
+                <button class="btn-add"
+                    onclick="addToCart('Artisan Sourdough', 6.00, 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Traditional sourdough with crispy crust and soft interior')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 2: WHOLE WHEAT BREAD -->
+        <div class="product-card" data-category="bread">
+            <img src="https://images.unsplash.com/photo-1598373182133-52452f7691ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Whole Wheat Bread" class="product-img">
+            <div class="product-info">
+                <h3>Whole Wheat Bread</h3>
+                <p class="product-desc">Healthy whole wheat bread with seeds and grains</p>
+                <span class="price">$5.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Whole Wheat Bread', 5.50, 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Healthy whole wheat bread with seeds and grains')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 3: RUSTIC LOAF (ALTERNATIVE IMAGE) -->
+        <div class="product-card" data-category="bread">
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Rustic Loaf" class="product-img">
+                        <div class="product-info">
+                <h3>Rustic Loaf</h3>
+                <p class="product-desc">Classic rustic bread perfect for sandwiches</p>
+                <span class="price">$5.00</span>
+                <button class="btn-add"
+                    onclick="addToCart('Rustic Loaf', 5.00, 'https://images.unsplash.com/photo-1509440159596-0249088772ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Classic rustic bread perfect for sandwiches')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- PASTRIES SECTION -->
+        <div class="category-header">
+            <h2>Pastries</h2>
+        </div>
+
+        <!-- Product 1: BUTTER CROISSANT -->
+        <div class="product-card" data-category="pastry">
+            <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Butter Croissant" class="product-img">
+            <div class="product-info">
+                <h3>Butter Croissant</h3>
+                <p class="product-desc">Flaky, buttery croissant baked fresh daily</p>
+                <span class="price">$3.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Butter Croissant', 3.50, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Flaky, buttery croissant baked fresh daily')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 2: STRAWBERRY CUPCAKE -->
+        <div class="product-card" data-category="pastry">
+            <img src="https://images.unsplash.com/photo-1612203985729-70726954388c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Strawberry Cupcake" class="product-img">
+            <div class="product-info">
+                <h3>Strawberry Cupcake</h3>
+                <p class="product-desc">Light and fluffy cupcake with fresh strawberry frosting</p>
+                <span class="price">$4.25</span>
+                <button class="btn-add"
+                    onclick="addToCart('Strawberry Cupcake', 4.25, 'https://images.unsplash.com/photo-1612203985729-70726954388c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Light and fluffy cupcake with fresh strawberry frosting')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 3: DANISH PASTRY -->
+        <div class="product-card" data-category="pastry">
+            <img src="https://images.unsplash.com/photo-1550617931-e17a7b70dce2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Danish Pastry" class="product-img">
+            <div class="product-info">
+                <h3>Danish Pastry</h3>
+                <p class="product-desc">Sweet danish with almond filling and glaze</p>
+                <span class="price">$4.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Danish Pastry', 4.50, 'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Sweet danish with almond filling and glaze')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- CAKES SECTION -->
+        <div class="category-header">
+            <h2>Cakes</h2>
+        </div>
+
+        <!-- Product 1: CHOCOLATE CAKE -->
+        <div class="product-card" data-category="cake">
+            <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Chocolate Cake" class="product-img">
+            <div class="product-info">
+                <h3>Chocolate Cake</h3>
+                <p class="product-desc">Rich chocolate layer cake with ganache</p>
+                <span class="price">$25.00</span>
+                <button class="btn-add"
+                    onclick="addToCart('Chocolate Cake', 25.00, 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Rich chocolate layer cake with ganache')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 2: VANILLA CAKE (FIXED IMAGE) -->
+        <div class="product-card" data-category="cake">
+            <img src="https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Vanilla Cake" class="product-img">
+            <div class="product-info">
+                <h3>Vanilla Cake</h3>
+                <p class="product-desc">Classic vanilla cake with buttercream frosting</p>
+                <span class="price">$22.00</span>
+                <button class="btn-add"
+                    onclick="addToCart('Vanilla Cake', 22.00, 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Classic vanilla cake with buttercream frosting')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- BEVERAGES SECTION -->
+        <div class="category-header">
+            <h2>Beverages</h2>
+        </div>
+
+        <!-- Product 1: ESPRESSO -->
+        <div class="product-card" data-category="beverage">
+            <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Espresso" class="product-img">
+            <div class="product-info">
+                <h3>Espresso</h3>
+                <p class="product-desc">Rich and bold espresso shot</p>
+                <span class="price">$3.00</span>
+                <button class="btn-add"
+                    onclick="addToCart('Espresso', 3.00, 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Rich and bold espresso shot')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 2: CARAMEL LATTE -->
+        <div class="product-card" data-category="beverage">
+            <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Caramel Latte" class="product-img">
+            <div class="product-info">
+                <h3>Caramel Latte</h3>
+                <p class="product-desc">Smooth latte with caramel syrup</p>
+                <span class="price">$4.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Caramel Latte', 4.50, 'https://images.unsplash.com/photo-1541167760496-1628856ab772?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Smooth latte with caramel syrup')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 3: STRAWBERRY SHAKE (NEW) -->
+        <div class="product-card" data-category="beverage">
+            <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Strawberry Shake" class="product-img">
+            <div class="product-info">
+                <h3>Strawberry Shake</h3>
+                <p class="product-desc">Creamy strawberry milkshake with whipped cream</p>
+                <span class="price">$5.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Strawberry Shake', 5.50, 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Creamy strawberry milkshake with whipped cream')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- SANDWICHES SECTION -->
+        <div class="category-header">
+            <h2>Sandwiches</h2>
+        </div>
+
+        <!-- Product 1: CHEESE CORN SANDWICH -->
+        <div class="product-card" data-category="sandwich">
+            <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Cheese Corn Sandwich" class="product-img">
+            <div class="product-info">
+                <h3>Cheese Corn Sandwich</h3>
+                <p class="product-desc">Grilled sandwich with cheese and sweet corn</p>
+                <span class="price">$6.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Cheese Corn Sandwich', 6.50, 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Grilled sandwich with cheese and sweet corn')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 2: CHICKEN SANDWICH (NEW) -->
+        <div class="product-card" data-category="sandwich">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Chicken Sandwich" class="product-img">
+            <div class="product-info">
+                <h3>Chicken Sandwich</h3>
+                <p class="product-desc">Grilled chicken with lettuce and mayo</p>
+                <span class="price">$7.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Chicken Sandwich', 7.50, 'https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Grilled chicken with lettuce and mayo')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 3: VEGGIE SANDWICH (NEW) -->
+        <div class="product-card" data-category="sandwich">
+            <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Veggie Sandwich" class="product-img">
+            <div class="product-info">
+                <h3>Veggie Sandwich</h3>
+                <p class="product-desc">Fresh vegetables with hummus spread</p>
+                <span class="price">$6.00</span>
+                <button class="btn-add"
+                    onclick="addToCart('Veggie Sandwich', 6.00, 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Fresh vegetables with hummus spread')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+        <!-- Product 4: CLUB SANDWICH (NEW) -->
+        <div class="product-card" data-category="sandwich">
+            <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                alt="Club Sandwich" class="product-img">
+            <div class="product-info">
+                <h3>Club Sandwich</h3>
+                <p class="product-desc">Triple-decker with turkey, bacon, and lettuce</p>
+                <span class="price">$8.50</span>
+                <button class="btn-add"
+                    onclick="addToCart('Club Sandwich', 8.50, 'https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80', 'Triple-decker with turkey, bacon, and lettuce')">Add
+                    to Cart</button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Shimla Bakery. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // ============================================
+        // 🔐 LOGIN STATUS CHECK (ADD THIS FIRST)
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            // Desktop navigation links
+            const loginLink = document.getElementById('login-link');
+            const dashboardLink = document.getElementById('dashboard-link');
+            const logoutLink = document.getElementById('logout-link');
+            
+            // Mobile navigation links
+            const mobileLoginLink = document.getElementById('mobile-login-link');
+            const mobileDashboardLink = document.getElementById('mobile-dashboard-link');
+            const mobileLogoutLink = document.getElementById('mobile-logout-link');
+
+            if (currentUser) {
+                // User is logged in
+                if (loginLink) loginLink.style.display = 'none';
+                if (dashboardLink) dashboardLink.style.display = 'block';
+                if (logoutLink) logoutLink.style.display = 'block';
+                
+                if (mobileLoginLink) mobileLoginLink.style.display = 'none';
+                if (mobileDashboardLink) mobileDashboardLink.style.display = 'block';
+                if (mobileLogoutLink) mobileLogoutLink.style.display = 'block';
+            } else {
+                // User is not logged in
+                if (loginLink) loginLink.style.display = 'block';
+                if (dashboardLink) dashboardLink.style.display = 'none';
+                if (logoutLink) logoutLink.style.display = 'none';
+                
+                if (mobileLoginLink) mobileLoginLink.style.display = 'block';
+                if (mobileDashboardLink) mobileDashboardLink.style.display = 'none';
+                if (mobileLogoutLink) mobileLogoutLink.style.display = 'none';
+            }
+        });
+
+        // ============================================
+        // 📱 MOBILE MENU TOGGLE
+        // ============================================
+        function toggleMobileMenu() {
+                        const overlay = document.getElementById('mobile-nav-overlay');
+            overlay.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const overlay = document.getElementById('mobile-nav-overlay');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!overlay.contains(e.target) && !menuBtn.contains(e.target)) {
+                overlay.classList.remove('active');
+            }
+        });
+
+        // ============================================
+        // 🛒 CART FUNCTIONALITY
+        // ============================================
+        // Cart Data - Load from localStorage on page load
+        let cart = JSON.parse(localStorage.getItem('bakeryCart')) || [];
+
+        // Initialize Cart Count on Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Reload cart from localStorage to ensure latest data
+            cart = JSON.parse(localStorage.getItem('bakeryCart')) || [];
+            updateCartCount();
+        });
+
+        // Update Cart Count in Navigation (All Pages)
+        function updateCartCount() {
+            // Reload cart from localStorage to ensure latest data
+            cart = JSON.parse(localStorage.getItem('bakeryCart')) || [];
+
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = count;
+            }
+        }
+
+        // Add to Cart Function (for menu page)
+        function addToCart(itemName, itemPrice, itemImage, itemDescription = '') {
+            // Get existing cart from localStorage
+            let cart = JSON.parse(localStorage.getItem('bakeryCart')) || [];
+
+            // Check if item already exists
+            const existingItem = cart.find(item => item.name === itemName);
+
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    name: itemName,
+                    price: itemPrice,
+                    image: itemImage,
+                    description: itemDescription,
+                    quantity: 1
+                });
+            }
+
+            // Save to localStorage
+            localStorage.setItem('bakeryCart', JSON.stringify(cart));
+
+            // Update cart count in navigation
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = count;
+            }
+
+            // Show alert
+            alert(itemName + " has been added to your cart!");
+        }
+
+        // ============================================
+        // 📋 MENU FILTER FUNCTION
+        // ============================================
+        // Menu Filter Function (FIXED - Filters individual cards)
+        function filterMenu(category) {
+            // Update active button
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter individual product cards
+            const productCards = document.querySelectorAll('.product-card');
+            const categoryHeaders = document.querySelectorAll('.category-header');
+
+            productCards.forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Show/hide category headers based on visible cards
+            categoryHeaders.forEach(header => {
+                const category = header.querySelector('h2').textContent.toLowerCase();
+                const hasVisibleCards = Array.from(productCards).some(card => {
+                    const cardCategory = card.getAttribute('data-category');
+                    return cardCategory === category && !card.classList.contains('hidden');
+                });
+
+                if (hasVisibleCards) {
+                    header.style.display = 'block';
+                } else {
+                    header.style.display = 'none';
+                }
+            });
+        }
+
+        // ============================================
+        // 🔍 SMOOTH SCROLL
+        // ============================================
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // ============================================
+        // 🔐 LOGOUT FUNCTION
+        // ============================================
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>

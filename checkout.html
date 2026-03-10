@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Shimla Bakery</title>
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary-color: #d35400;
+            --secondary-color: #2c3e50;
+            --bg-color: #fdfbf7;
+            --accent-color: #e67e22;
+            --text-color: #555;
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Poppins', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* --- NAVIGATION --- */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-family: var(--font-heading);
+        }
+
+        .nav-links-desktop {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links-desktop a {
+            font-weight: 500;
+            transition: color 0.3s;
+            color: var(--secondary-color);
+            text-decoration: none;
+        }
+
+        .nav-links-desktop a:hover {
+            color: var(--primary-color);
+        }
+
+        .btn-logout {
+            background-color: #e74c3c;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-logout:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* --- MOBILE NAVIGATION (FIXED) --- */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 0.5rem;
+            z-index: 1002;
+        }
+
+        .mobile-nav-overlay {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100vh;
+            background: #fff;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: left 0.3s ease;
+            padding: 2rem 1.5rem;
+            overflow-y: auto;
+        }
+
+        .mobile-nav-overlay.active {
+            left: 0;
+        }
+
+        .mobile-nav-overlay .nav-links {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-overlay .nav-links a {
+            padding: 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            color: var(--secondary-color);
+            font-weight: 500;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .mobile-nav-overlay .nav-links a:hover {
+            background-color: rgba(211, 84, 0, 0.1);
+            color: var(--primary-color);
+        }
+
+        .mobile-nav-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+
+        .mobile-nav-overlay .btn-logout {
+            background-color: #e74c3c;
+            margin-top: 2rem;
+            color: white;
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: block;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .mobile-nav-overlay .btn-logout:hover {
+            background-color: #c0392b;
+        }
+
+        /* --- CHECKOUT CONTAINER --- */
+        .checkout-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 5%;
+        }
+
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .checkout-header h1 {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        /* --- CHECKOUT FORM --- */
+        .checkout-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* --- ORDER SUMMARY --- */
+        .order-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row.total {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* --- PLACE ORDER BUTTON --- */
+        .place-order-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .place-order-btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        /* --- EMPTY CART MESSAGE --- */
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-cart h2 {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-cart p {
+            color: #777;
+            margin-bottom: 2rem;
+        }
+
+        .back-to-cart {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-to-cart:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* --- SUCCESS MESSAGE --- */
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .success-message h2 {
+            font-size: 2.5rem;
+            color: #27ae60;
+            margin-bottom: 1rem;
+        }
+
+        .success-message p {
+            font-size: 1.2rem;
+            color: #777;
+            margin-bottom: 2rem;
+        }
+
+        .order-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+
+        /* --- RESPONSIVE BREAKPOINTS (FIXED) --- */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-links-desktop {
+                display: none;
+            }
+
+            .checkout-header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .checkout-container {
+                padding: 2rem 5%;
+            }
+        }
+    </style>
+    <!-- Importing Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400,600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
+        <div class="logo">Shimla Bakery.</div>
+
+        <div class="nav-links-desktop" id="nav-links">
+            <a href="index.html">Home</a>
+            <a href="menu.html">Menu</a>
+            <a href="cart.html">Cart (<span id="cart-count">0</span>)</a>
+            <a href="login.html" id="login-link">Login</a>
+            <a href="dashboard.html" id="dashboard-link" style="display: none;">Dashboard</a>
+            <a href="#" id="logout-link" class="btn-logout" style="display: none;" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+        <button class="mobile-nav-close" onclick="toggleMobileMenu()">✕</button>
+        <div class="nav-links" style="flex-direction: column;">
+            <a href="index.html" onclick="toggleMobileMenu()">Home</a>
+            <a href="menu.html" onclick="toggleMobileMenu()">Menu</a>
+            <a href="cart.html" onclick="toggleMobileMenu()">Cart</a>
+            <a href="login.html" id="mobile-login-link" onclick="toggleMobileMenu()">Login</a>
+            <a href="dashboard.html" id="mobile-dashboard-link" style="display: none;" onclick="toggleMobileMenu()">Dashboard</a>
+            <a href="#" id="mobile-logout-link" class="btn-logout" style="display: none;" onclick="logout(); toggleMobileMenu()">Logout</a>
+        </div>
+    </div>
+    <!-- Checkout Container -->
+    <div class="checkout-container">
+        <div class="checkout-header">
+            <h1>Checkout</h1>
+            <p>Complete your order with your delivery details</p>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="checkout-form" id="checkout-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" placeholder="John" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" placeholder="Doe" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" placeholder="john@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" placeholder="+1 (555) 123-4567" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Delivery Address *</label>
+                <textarea id="address" rows="3" placeholder="123 Baker Street, Food City, FC 12345" required></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" id="city" placeholder="Food City" required>
+                </div>
+                <div class="form-group">
+                    <label for="zipCode">Zip Code *</label>
+                    <input type="text" id="zipCode" placeholder="12345" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="paymentMethod">Payment Method *</label>
+                <select id="paymentMethod" required>
+                    <option value="">Select Payment Method</option>
+                    <option value="card">Credit/Debit Card</option>
+                    <option value="cod">Cash on Delivery</option>
+                    <option value="upi">UPI Payment</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="order-summary" id="order-summary">
+            <h2 style="margin-bottom: 1.5rem;">Order Summary</h2>
+            <div id="order-items">
+                <!-- Order items will be inserted here -->
+            </div>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">$0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax (10%)</span>
+                <span id="tax">$0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">$0.00</span>
+            </div>
+            <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+        </div>
+
+        <!-- Empty Cart Message -->
+        <div class="empty-cart" id="empty-cart" style="display: none;">
+            <h2>Your cart is empty</h2>
+            <p>Add some delicious items from our menu!</p>
+            <a href="menu.html" class="back-to-cart">Back to Menu</a>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="success-message">
+            <h2>🎉 Order Placed Successfully!</h2>
+            <p>Thank you for your order. We'll prepare your delicious items soon.</p>
+            <div class="order-number">Order Number: <span id="order-number"></span></div>
+            <p>We've sent a confirmation email to your email address.</p>
+            <a href="index.html" class="back-to-cart">Return to Home</a>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+       <!-- JavaScript -->
+    <script>
+        // ============================================
+        // 🛒 UPDATE CART COUNT (ALL PAGES)
+        // ============================================
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('bakeryCart')) || [];
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+                cartCountElement.textContent = count;
+            }
+        }
+
+        // ============================================
+        // 🔐 LOGIN STATUS CHECK
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const currentUser = localStorage.getItem('currentUser');
+            
+            // Desktop navigation links
+            const loginLink = document.getElementById('login-link');
+            const dashboardLink = document.getElementById('dashboard-link');
+            const logoutLink = document.getElementById('logout-link');
+            
+            // ✅ FIXED: Mobile navigation links (declare them first!)
+            const mobileLoginLink = document.getElementById('mobile-login-link');
+            const mobileDashboardLink = document.getElementById('mobile-dashboard-link');
+            const mobileLogoutLink = document.getElementById('mobile-logout-link');
+
+            if (currentUser) {
+                if (loginLink) loginLink.style.display = 'none';
+                if (dashboardLink) dashboardLink.style.display = 'block';
+                if (logoutLink) logoutLink.style.display = 'block';
+                
+                if (mobileLoginLink) mobileLoginLink.style.display = 'none';
+                if (mobileDashboardLink) mobileDashboardLink.style.display = 'block';
+                if (mobileLogoutLink) mobileLogoutLink.style.display = 'block';
+            } else {
+                if (loginLink) loginLink.style.display = 'block';
+                if (dashboardLink) dashboardLink.style.display = 'none';
+                if (logoutLink) logoutLink.style.display = 'none';
+                
+                if (mobileLoginLink) mobileLoginLink.style.display = 'block';
+                if (mobileDashboardLink) mobileDashboardLink.style.display = 'none';
+                if (mobileLogoutLink) mobileLogoutLink.style.display = 'none';
+            }
+            
+            // ✅ Call updateCartCount ONCE in this listener
+            updateCartCount();
+        });
+
+        // ============================================
+        // 📱 MOBILE MENU TOGGLE
+        // ============================================
+        function toggleMobileMenu() {
+            const overlay = document.getElementById('mobile-nav-overlay');
+            overlay.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const overlay = document.getElementById('mobile-nav-overlay');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (!overlay.contains(e.target) && !menuBtn.contains(e.target)) {
+                overlay.classList.remove('active');
+            }
+        });
+
+        // ============================================
+        // 🛒 CART FUNCTIONALITY
+        // ============================================
+        let cart = JSON.parse(localStorage.getItem('bakeryCart')) || [];
+
+        // Initialize Checkout Page
+        document.addEventListener('DOMContentLoaded', () => {
+            if (cart.length === 0) {
+                document.getElementById('checkout-form').style.display = 'none';
+                document.getElementById('order-summary').style.display = 'none';
+                document.getElementById('empty-cart').style.display = 'block';
+            } else {
+                renderOrderSummary();
+            }
+        });
+
+        // Render Order Summary
+        function renderOrderSummary() {
+            const orderItemsContainer = document.getElementById('order-items');
+            let subtotal = 0;
+
+            orderItemsContainer.innerHTML = '';
+
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                const itemHTML = `
+                    <div class="summary-row">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>$${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+                orderItemsContainer.innerHTML += itemHTML;
+            });
+
+            // Calculate totals
+            const tax = subtotal * 0.10;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+            document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Place Order
+        function placeOrder() {
+            // Validate form
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            const city = document.getElementById('city').value;
+            const zipCode = document.getElementById('zipCode').value;
+            const paymentMethod = document.getElementById('paymentMethod').value;
+
+            if (!firstName || !lastName || !email || !phone || !address || !city || !zipCode || !paymentMethod) {
+                alert('Please fill in all required fields!');
+                return;
+            }
+
+            // Generate Order Number
+            const orderNumber = 'ORD-' + Date.now();
+
+            // Calculate total
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+            const total = subtotal * 1.10; // 10% tax
+
+            // Save order details
+            const orderDetails = {
+                orderNumber: orderNumber,
+                customer: {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    phone: phone,
+                    address: address,
+                    city: city,
+                    zipCode: zipCode
+                },
+                paymentMethod: paymentMethod,
+                cart: cart,
+                total: total,
+                orderDate: new Date().toISOString()
+            };
+
+            // Save order to localStorage
+            const userOrders = JSON.parse(localStorage.getItem('userOrders')) || [];
+            userOrders.push(orderDetails);
+            localStorage.setItem('userOrders', JSON.stringify(userOrders));
+
+            // Clear cart
+            localStorage.removeItem('bakeryCart');
+            cart = [];
+
+            // Show success message
+            document.getElementById('checkout-form').style.display = 'none';
+            document.getElementById('order-summary').style.display = 'none';
+            document.getElementById('empty-cart').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
+            document.getElementById('order-number').textContent = orderNumber;
+        }
+
+        // Logout Function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+
+</html>
