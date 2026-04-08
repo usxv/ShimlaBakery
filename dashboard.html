@@ -414,7 +414,7 @@
                     <div class="order-item">
                         <span><strong>Order #:</strong> ${order.orderNumber}</span>
                         <span><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</span>
-                        <span><strong>Total:</strong> $${order.total.toFixed(2)}</span>
+                        <span><strong>Total:</strong> ₹${order.total.toFixed(2)}</span>
                     </div>
                 `;
                 orderList.innerHTML += orderHTML;
